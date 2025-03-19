@@ -105,6 +105,18 @@ async def create_poultice_db(
         image: str,
         number: int,
         json_sizes_box: dict,
+
+        number_of_shelves: int,
+        width_mm: float,
+        depth_mm: float,
+        sides_height_mm: float,
+        sides_width_mm: float,
+        back_width_mm: float,
+        front_width_mm: float,
+        shelf_width_mm: float,
+        fronton_height_mm: float,
+        topper_height_mm: float,
+
         session: AsyncSession=None
 ):
     """ Создает препак """
@@ -123,6 +135,18 @@ async def create_poultice_db(
                 image=image,
                 number=number,
                 json_sizes_box=json_sizes_box,
+
+                number_of_shelves=number_of_shelves,
+                width_mm=width_mm,
+                depth_mm=depth_mm,
+                sides_height_mm=sides_height_mm,
+                sides_width_mm=sides_width_mm,
+                back_width_mm=back_width_mm,
+                front_width_mm=front_width_mm,
+                shelf_width_mm=shelf_width_mm,
+                fronton_height_mm=fronton_height_mm,
+                topper_height_mm=topper_height_mm,
+
                 session=session
             )
 
@@ -141,7 +165,18 @@ async def create_poultice_db(
 
             name=name,
             image=image,
-            number=number
+            number=number,
+
+            number_of_shelves = number_of_shelves,
+            width_mm = width_mm,
+            depth_mm = depth_mm,
+            sides_height_mm = sides_height_mm,
+            sides_width_mm = sides_width_mm,
+            back_width_mm = back_width_mm,
+            front_width_mm = front_width_mm,
+            shelf_width_mm = shelf_width_mm,
+            fronton_height_mm = fronton_height_mm,
+            topper_height_mm = topper_height_mm,
         )
     else:
         res = Poultice(
@@ -157,7 +192,18 @@ async def create_poultice_db(
             image=image,
             number=number,
 
-            json_sizes_box=json_sizes_box
+            json_sizes_box=json_sizes_box,
+
+            number_of_shelves = number_of_shelves,
+            width_mm = width_mm,
+            depth_mm = depth_mm,
+            sides_height_mm = sides_height_mm,
+            sides_width_mm = sides_width_mm,
+            back_width_mm = back_width_mm,
+            front_width_mm = front_width_mm,
+            shelf_width_mm = shelf_width_mm,
+            fronton_height_mm = fronton_height_mm,
+            topper_height_mm = topper_height_mm,
         )
 
     session.add(res)
@@ -203,6 +249,18 @@ async def update_poultice_db(
         is_designed: bool = None,
         json_sizes_box: dict = None,
         type_id:int = None,
+
+        number_of_shelves: int = None,
+        width_mm: float = None,
+        depth_mm: float = None,
+        sides_height_mm: float = None,
+        sides_width_mm: float = None,
+        back_width_mm: float = None,
+        front_width_mm: float = None,
+        shelf_width_mm: float = None,
+        fronton_height_mm: float = None,
+        topper_height_mm: float = None,
+
         session: AsyncSession = None
 ):
     """ Обновляет poultice по id в бд """
@@ -224,6 +282,18 @@ async def update_poultice_db(
                 number=number,
                 json_sizes_box=json_sizes_box,
                 type_id=type_id,
+
+                number_of_shelves=number_of_shelves,
+                width_mm=width_mm,
+                depth_mm=depth_mm,
+                sides_height_mm=sides_height_mm,
+                sides_width_mm=sides_width_mm,
+                back_width_mm=back_width_mm,
+                front_width_mm=front_width_mm,
+                shelf_width_mm=shelf_width_mm,
+                fronton_height_mm=fronton_height_mm,
+                topper_height_mm=topper_height_mm,
+
                 session=session,
             )
 
@@ -252,11 +322,88 @@ async def update_poultice_db(
         x.type_id = type_id
     if json_sizes_box:
         x.json_sizes_box = json_sizes_box
+
+    if number_of_shelves:
+        x.number_of_shelves = number_of_shelves
+    if width_mm:
+        x.width_mm = width_mm
+    if depth_mm:
+        x.depth_mm = depth_mm
+    if sides_height_mm:
+        x.sides_height_mm = sides_height_mm
+    if sides_width_mm:
+        x.sides_width_mm = sides_width_mm
+
+    if back_width_mm:
+        x.back_width_mm = back_width_mm
+    if front_width_mm:
+        x.front_width_mm = front_width_mm
+    if shelf_width_mm:
+        x.shelf_width_mm = shelf_width_mm
+    if fronton_height_mm:
+        x.fronton_height_mm = fronton_height_mm
+    if topper_height_mm:
+        x.topper_height_mm = topper_height_mm
+
     await session.commit()
     await session.refresh(x)
 
     return x
 
+
+async def copy_poultice_in_db(session:AsyncSession = None,copy_id = None):
+    # Получаем оригинальный объект Poultice по ID
+    if session is None:
+        async for session in make_session():
+             return await copy_poultice_in_db(session,copy_id)
+    result = await session.get(Poultice, copy_id)
+    
+    # Создаем копию объекта Poultice
+    new_poultice = Poultice(
+        project_id=result.project_id,
+        file=result.file,
+        type_id=result.type_id,
+        name=result.name,
+        image=result.image,
+        number=result.number,
+        size_x=result.size_x,
+        size_y=result.size_y,
+        size_z=result.size_z,
+        is_designed=result.is_designed,
+        created_at=datetime.now(),  # Обновляем время создания для копии
+        active=result.active,
+        json_sizes_box=result.json_sizes_box.copy()  # Копируем JSON-объект
+    )
+
+    # Добавляем новый объект Poultice в сессию
+    session.add(new_poultice)
+    await session.flush()  # Фиксируем изменения для получения нового ID
+
+    # Получаем все связанные активные объекты Shelf
+    shelves_result = await session.execute(
+        select(Shelf).where(Shelf.active == True).where(Shelf.poulticle_id == copy_id)
+    )
+
+    new_shelves = []
+    for shelf in shelves_result.scalars():
+        # Создаем копию каждого объекта Shelf
+        data = shelf.__dict__
+        new_shelf = Shelf(
+            shelf.__dict__       
+        )
+        session.add(new_shelf)
+        new_shelves.append(new_shelf)
+    
+    # Коммитим все изменения
+    await session.commit()
+
+    # Возвращаем новые ID
+    new_ids = {
+        "poultice_id": new_poultice.id,
+        "shelf_ids": [shelf.id for shelf in new_shelves]
+    }
+
+    return new_ids
 
 async def get_poultices_db(session: AsyncSession=None):
     """ Возвращает все poultice из бд """
@@ -360,6 +507,8 @@ async def update_shelf_db(
         margin_bottom: int = None,
         json_shelf: str = None,
         json_rows: str = None,
+        active:bool = None,
+        isRows: bool = None,
         session: AsyncSession = None
 ):
     """ Обновляет полку по id в бд """
@@ -376,6 +525,8 @@ async def update_shelf_db(
                 margin_bottom=margin_bottom,
                 json_shelf=json_shelf,
                 json_rows=json_rows,
+                active=active,
+                isRows=isRows,
                 session=session
             )
 
@@ -393,10 +544,14 @@ async def update_shelf_db(
     if json_shelf:
         print(json_shelf)
         x.json_shelf = json_shelf
-    if json_rows:
-        if not isinstance(json_rows, list):
-            raise ValueError(f"json_rows должен быть списком, но имеет тип {type(json_rows)}")
+    if json_rows is not None and json_rows!=dict():
+        # if not isinstance(json_rows, list):
+        #     raise ValueError(f"json_rows должен быть списком, но имеет тип {type(json_rows)}")
         x.json_rows = json_rows
+    if active is not None:
+        x.active = active
+    if isRows is not None:
+        x.isRows = isRows
     await session.commit()
     await session.refresh(x)
 

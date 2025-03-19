@@ -106,7 +106,8 @@ async def update_packagingtype(packagingtype_id: int, data: schemas.UpdatePackag
             front_svg=data.front_svg,
             side_svg=data.side_svg,
             top_svg=data.top_svg,
-            packagingtype_id=packagingtype_id
+            packagingtype_id=packagingtype_id,
+            object=data.object
         )
         return {"status": "ok", "packagingtype": result}
     except:
@@ -231,7 +232,7 @@ async def get_products_by_client(client_id: int):
     result = await get_products_by_client_db(client_id=client_id)
     if result:
         return {"status": "ok", "products": result}
-    return {"status": "fail", "products": []}
+    return {"status": "ok", "products": []}
 
 
 

@@ -3,7 +3,7 @@ from enum import Enum
 from pydantic import BaseModel, Json
 from pydantic import field_validator
 from pydantic.dataclasses import dataclass
-from typing import Optional, List, Any,Dict
+from typing import Optional, List, Any,Dict,Union
 
 
 class CreateEmployee(BaseModel):
@@ -12,6 +12,10 @@ class CreateEmployee(BaseModel):
 
 class UpdateClient(BaseModel):
     name: str
+
+
+class Copy(BaseModel):
+    id:int = 0
 
 
 class AddProject(BaseModel):
@@ -62,6 +66,17 @@ class CreatePoultice(BaseModel):
 
     json_sizes_box: Optional[Dict[str, Any]] = None
 
+    number_of_shelves: Optional[int] = 4
+    width_mm: Optional[float] = 380
+    depth_mm: Optional[float] = 280
+    sides_height_mm: Optional[float] = 1320
+    sides_width_mm: Optional[float] = 17
+    back_width_mm: Optional[float] = 10
+    front_width_mm: Optional[float] = 25
+    shelf_width_mm: Optional[float] = 20
+    fronton_height_mm: Optional[float] = 200
+    topper_height_mm: Optional[float] = 0
+
 
 class UpdatePoultice(BaseModel):
     project_id: Optional[int] = None
@@ -79,6 +94,17 @@ class UpdatePoultice(BaseModel):
 
     json_sizes_box: Optional[Dict[str, Any]] = None
 
+    number_of_shelves: Optional[int] = None
+    width_mm: Optional[float] = None
+    depth_mm: Optional[float] = None
+    sides_height_mm: Optional[float] = None
+    sides_width_mm: Optional[float] = None
+    back_width_mm: Optional[float] = None
+    front_width_mm: Optional[float] = None
+    shelf_width_mm: Optional[float] = None
+    fronton_height_mm: Optional[float] = None
+    topper_height_mm: Optional[float] = None
+
 
 class CreateShelf(BaseModel):
     width: int
@@ -90,6 +116,8 @@ class CreateShelf(BaseModel):
 
     poulticle_id: int
 
+    isRows: Optional[bool] = True
+
 
 class UpdateShelf(BaseModel):
     width: Optional[int] = None
@@ -100,8 +128,10 @@ class UpdateShelf(BaseModel):
     margin_bottom: Optional[int] = None
 
     json_shelf: Optional[Dict[str, Any]] = None
-    json_rows: Optional[List[Dict[Any, Any]]] = None
+    json_rows: Union[dict, list] = None
+    active : bool = None
 
+    isRows: bool = False
 
 class CreatePrepType(BaseModel):
     name: str
@@ -114,6 +144,8 @@ class CreatePackagingType(BaseModel):
     side_svg: str
     top_svg: str
 
+    object: str
+
 
 class UpdatePackagingType(BaseModel):
     name: Optional[str] = None
@@ -121,6 +153,8 @@ class UpdatePackagingType(BaseModel):
     front_svg: Optional[str] = None
     side_svg: Optional[str] = None
     top_svg: Optional[str] = None
+
+    object: Optional[str] = None
 
 
 

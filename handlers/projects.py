@@ -25,35 +25,35 @@ async def clone_model(model: str, instance_id: int, response: Response):
         return {"status": "fail", "error": f"model should be one of: {ALLOWED_MODEL_NAMES}"}
 
 
-    # try:
-    new_instance_id: int
+    try:
+        new_instances: list
 
-    if model == "client":
-        new_instance_id = await clone_client_db(instance_id)
-    elif model == "employee":
-        new_instance_id = await clone_employee_db(instance_id)
-    elif model == "packaging_type":
-        new_instance_id = await clone_packaging_type_db(instance_id)
-    elif model == "prep_type":
-        new_instance_id = await clone_prep_type_db(instance_id)
-    elif model == "product_category":
-        new_instance_id = await clone_product_category_db(instance_id)
-    elif model == "project":
-        new_instance_id = await clone_project_db(instance_id)
-    elif model == "poultice":
-        new_instance_id = await clone_poultice_db(instance_id)
-    elif model == "shelf":
-        new_instance_id = await clone_shelf_db(instance_id)
-    elif model == "product":
-        new_instance_id = await clone_product_db(instance_id)
-    else:
+        if model == "client":
+            new_instances = await clone_client_db(instance_id)
+        elif model == "employee":
+            new_instances = await clone_employee_db(instance_id)
+        elif model == "packaging_type":
+            new_instances = await clone_packaging_type_db(instance_id)
+        elif model == "prep_type":
+            new_instances = await clone_prep_type_db(instance_id)
+        elif model == "product_category":
+            new_instances = await clone_product_category_db(instance_id)
+        elif model == "project":
+            new_instances = await clone_project_db(instance_id)
+        elif model == "poultice":
+            new_instances = await clone_poultice_db(instance_id)
+        elif model == "shelf":
+            new_instances = await clone_shelf_db(instance_id)
+        elif model == "product":
+            new_instances = await clone_product_db(instance_id)
+        else:
+            response.status_code = status.HTTP_400_BAD_REQUEST
+            return {"status": "fail", "error": "no such model"}
+
+        return {"status": "ok", "new_instance_type": model, "new_instances": new_instances}
+    except Exception as error:
         response.status_code = status.HTTP_400_BAD_REQUEST
-        return {"status": "fail", "error": "no such model"}
-
-    return {"status": "ok", "new_instance_type": model, "new_instance_id": new_instance_id}
-    # except:
-    #     response.status_code = status.HTTP_400_BAD_REQUEST
-    #     return {"status": "fail"}
+        return {"status": "fail", "error": error}
 
 
 @base_router.put("/employee_{employee_id}", status_code=status.HTTP_202_ACCEPTED)
@@ -176,5 +176,3 @@ async def get_project(project_id: int):
 async def get_projects():
     result = await get_projects_db()
     return {"status": "ok", "projects": result}
-
-

@@ -67,6 +67,8 @@ class PackagingType(Base):
 
     active = Column(Boolean, default=True)
 
+    object = Column(String(64))
+
 
 class PrepType(Base):
     """
@@ -197,6 +199,17 @@ class Poultice(Base):
 
     json_sizes_box = Column(MutableDict.as_mutable(JSON), default=lambda: {})
 
+    number_of_shelves = Column(Integer)
+    width_mm = Column(Float)
+    depth_mm = Column(Float)
+    sides_height_mm = Column(Float)
+    sides_width_mm = Column(Float)
+    back_width_mm = Column(Float)
+    front_width_mm = Column(Float)
+    shelf_width_mm = Column(Float)
+    fronton_height_mm = Column(Float)
+    topper_height_mm = Column(Float)
+
 
 class Shelf(Base):
     """
@@ -212,7 +225,7 @@ class Shelf(Base):
     length = Column(Integer)
 
     json_shelf = Column(MutableDict.as_mutable(JSON), default=lambda: {})
-    json_rows = Column(MutableList.as_mutable(JSON), default=lambda: [])
+    json_rows = Column(MutableDict.as_mutable(JSON), default=lambda:  {})
 
     heigth = Column(Integer)
     margin_top = Column(Integer)
@@ -221,6 +234,8 @@ class Shelf(Base):
     poulticle = relationship("Poultice",back_populates="shelves")
 
     active = Column(Boolean, default=True)
+
+    isRows = Column(Boolean, default=True)
 
 
 # class ProductOnShelf(Base):

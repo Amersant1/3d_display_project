@@ -31,6 +31,7 @@ async def update_packagingtype_db(
         side_svg: str = None,
         top_svg: str = None,
         packagingtype_id: int = None,
+        object: str = None,
         session: AsyncSession = None
 ):
     """ Обновляет packagingtype по id в бд """
@@ -44,6 +45,7 @@ async def update_packagingtype_db(
                 side_svg=side_svg,
                 top_svg=top_svg,
                 packagingtype_id=packagingtype_id,
+                object=object,
                 session=session
             )
 
@@ -56,6 +58,8 @@ async def update_packagingtype_db(
         x.side_svg = side_svg
     if top_svg:
         x.top_svg = top_svg
+    if object:
+        x.object = object
     await session.commit()
     await session.refresh(x)
 
