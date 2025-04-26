@@ -33,5 +33,13 @@ for router in routers:
 
 
 if __name__ == "__main__":
+    app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Разрешить запросы с любого происхождения
+    allow_credentials=True,
+    allow_methods=["*"],  # Разрешить все методы (GET, POST, PUT, DELETE и т.д.)
+    allow_headers=["*"],  # Разрешить все заголовки
+    
+)
     uvicorn.run("wsgi:app", host="0.0.0.0", port=int(WEBHOOK_PORT), workers=2)
     print(f'START {datetime.now()}')

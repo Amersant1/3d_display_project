@@ -1,5 +1,5 @@
 from sqlalchemy import select
-
+from datetime import datetime
 from model import *
 
 
@@ -13,7 +13,8 @@ async def create_packagingtype_db(data: dict, session: AsyncSession=None):
                 data=data,
                 session=session
             )
-
+    if "front_svg" in data:
+        data["side_svg"] = data["front_svg"]
     res = PackagingType(
         **data
     )
@@ -32,7 +33,8 @@ async def update_packagingtype_db(
         top_svg: str = None,
         packagingtype_id: int = None,
         object: str = None,
-        session: AsyncSession = None
+        session: AsyncSession = None,
+        created: datetime = None
 ):
     """ Обновляет packagingtype по id в бд """
 
@@ -46,7 +48,8 @@ async def update_packagingtype_db(
                 top_svg=top_svg,
                 packagingtype_id=packagingtype_id,
                 object=object,
-                session=session
+                session=session,
+                created=created
             )
 
     x = await session.get(PackagingType, packagingtype_id)
@@ -54,12 +57,16 @@ async def update_packagingtype_db(
         x.name = name
     if front_svg:
         x.front_svg = front_svg
+        x.side_svg = front_svg
     if side_svg:
         x.side_svg = side_svg
     if top_svg:
         x.top_svg = top_svg
     if object:
         x.object = object
+    if created:
+        x.created = created
+    x.last_updated = datetime.now()
     await session.commit()
     await session.refresh(x)
 
@@ -101,7 +108,7 @@ async def create_productcategory_db(name, session = None):
     return productcategory_id
 
 
-async def update_productcategory_db(name: str = None, productcategory_id: int = None, session: AsyncSession = None):
+async def update_productcategory_db(name: str = None, productcategory_id: int = None, session: AsyncSession = None, created: datetime = None):
     """ Обновляет клиента по id в бд """
 
     if session is None:
@@ -110,12 +117,16 @@ async def update_productcategory_db(name: str = None, productcategory_id: int = 
             return await update_productcategory_db(
                 name=name,
                 productcategory_id=productcategory_id,
-                session=session
+                session=session,
+                created=created
             )
 
     x = await session.get(ProductCategory, productcategory_id)
     if name:
         x.name = name
+    if created:
+        x.created = created
+    x.last_updated = datetime.now()
     await session.commit()
     await session.refresh(x)
 
@@ -207,8 +218,9 @@ async def update_product_db(
         packaging_obj: str = None,
         facing_preview: str = None,
         session: AsyncSession = None,
-        packaging_type_id:int = None,
-        category_id = None
+        packaging_type_id: int = None,
+        category_id = None,
+        created: datetime = None
 ):
     """ Обновляет product по id в бд """
 
@@ -232,7 +244,8 @@ async def update_product_db(
                 packaging_obj = packaging_obj,
                 facing_preview=facing_preview,
                 category_id=category_id,
-                packaging_type_id=packaging_type_id
+                packaging_type_id=packaging_type_id,
+                created=created
             )
 
     x = await session.get(Product, product_id)
@@ -267,6 +280,9 @@ async def update_product_db(
         x.category_id = category_id
     if packaging_type_id:
         x.packaging_type_id = packaging_type_id
+    x.last_updated=datetime.now()
+    if created:
+        x.created = created
     await session.commit()
     await session.refresh(x)
 
@@ -343,5 +359,5 @@ async def get_product_categories_db(session:AsyncSession=None):
         # Create a new session if one is not provided
         async for session in make_session():
             return await get_product_categories_db(session=session)
-    result = await session.execute(select(ProductCategory).order_by(ProductCategory.id))
+    result = await session.execute(select(ProductCategory).where(ProductCategory.active == True).order_by(ProductCategory.id))
     return result.scalars().all()

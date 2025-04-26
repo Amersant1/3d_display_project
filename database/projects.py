@@ -1,9 +1,10 @@
 from sqlalchemy import select
+from datetime import datetime
 
 from model import *
 
 
-async def update_employee_db(full_name: str = None, employee_id: int = None, session: AsyncSession = None):
+async def update_employee_db(created: datetime = None, full_name: str = None, employee_id: int = None, session: AsyncSession = None):
     """ Обновляет employee по id в бд """
 
     if session is None:
@@ -12,12 +13,15 @@ async def update_employee_db(full_name: str = None, employee_id: int = None, ses
             return await update_employee_db(
                 full_name=full_name,
                 employee_id=employee_id,
-                session=session
+                session=session,
+                created=created
             )
 
     x = await session.get(Employee, employee_id)
     if full_name:
         x.full_name = full_name
+    if created:
+        x.created = created
     await session.commit()
     await session.refresh(x)
 
@@ -74,7 +78,7 @@ async def get_project_db(project_id: int, session: AsyncSession=None):
     return result
 
 
-async def update_project_db(project_id: int, name: str = None, client_id: int = None, session: AsyncSession = None):
+async def update_project_db(project_id: int, name: str = None, client_id: int = None,number:int = None, session: AsyncSession = None, created: datetime = None):
     """ Обновляет проект по id в бд """
 
     if session is None:
@@ -84,7 +88,9 @@ async def update_project_db(project_id: int, name: str = None, client_id: int = 
                 project_id=project_id,
                 name=name,
                 client_id=client_id,
-                session=session
+                session=session,
+                created=created,
+                number=number
             )
 
     x = await session.get(Project, project_id)
@@ -92,6 +98,13 @@ async def update_project_db(project_id: int, name: str = None, client_id: int = 
         x.name = name
     if client_id:
         x.client_id = client_id
+    if created:
+        x.created = created
+    if number:
+        x.number = number
+    client = await session.get(Client,x.client_id)
+    client.last_updated=datetime.now()
+    x.last_updated=datetime.now()
     await session.commit()
     await session.refresh(x)
 
@@ -118,13 +131,14 @@ async def delete_project_db(project_id: int = None, session: AsyncSession = None
     return x
 
 
-async def update_client_db(name: str = None, client_id: int = None, session: AsyncSession = None):
+async def update_client_db(created: datetime = None, name: str = None, client_id: int = None, session: AsyncSession = None):
     """ Обновляет клиента по id в бд """
 
     if session is None:
         # Create a new session if one is not provided
         async for session in make_session():
             return await update_client_db(
+                created=created,
                 name=name,
                 client_id=client_id,
                 session=session
@@ -133,9 +147,11 @@ async def update_client_db(name: str = None, client_id: int = None, session: Asy
     x = await session.get(Client, client_id)
     if name:
         x.name = name
+    if created:
+        x.created = created
     await session.commit()
     await session.refresh(x)
-
+    x.last_updated=datetime.now()
     return x
 
 

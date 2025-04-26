@@ -4,6 +4,9 @@ import aiofiles
 
 from fastapi import FastAPI, Request, HTTPException, Response, status, UploadFile
 from fastapi.responses import FileResponse
+from fastapi.responses import StreamingResponse
+import aiofiles
+import io
 
 from utils.good_png_maker import change_black_to_transparent
 from utils.converter.converter import convert_from_obj_to_svg
@@ -59,21 +62,23 @@ async def create_upload_file(file: UploadFile,save_name):
 @base_router.get("/loadfile/{file_path}")
 async def load_file(file_path: str):
     try:
-        file_path = f"{MEDIA_DIR}/{file_path}"
-        print(file_path)
+        full_path = os.path.join(MEDIA_DIR, file_path)
+        print(full_path)
 
-        if os.path.isfile(file_path):
-            if file_path.split(".")[1]=="svg":
-                result = FileResponse(file_path)
-                return result
-            result = FileResponse(file_path,media_type='application/octet-stream')
-            print(result)
-            return result
+        if os.path.isfile(full_path):
+            if full_path.endswith(".svg"):
+                async with aiofiles.open(full_path, mode='rb') as file:
+                    content = await file.read()
+                    return StreamingResponse(io.BytesIO(content), media_type='image/svg+xml')
+            async with aiofiles.open(full_path, mode='rb') as file:
+                content = await file.read()
+                return StreamingResponse(io.BytesIO(content), media_type='application/octet-stream')
         else:
             print("FAIL")
-            return {"status": "fail", "error": f"no such file"}
+            raise HTTPException(status_code=404, detail="No such file")
     except Exception as e:
         print(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 # ALLOWED_PACKAGING_TYPES = [
@@ -86,7 +91,7 @@ async def load_file(file_path: str):
 
 
 @base_router.post("/packagingtype", status_code=status.HTTP_201_CREATED)
-async def create_packagingtype(data: schemas.CreatePackagingType, response: Response):
+async def create_packagingtype(data: schemas.CreatePackagingType):
     # if data.name not in ALLOWED_PACKAGING_TYPES:
     #     response.status_code = status.HTTP_400_BAD_REQUEST
     #     return {"status": "fail", "error": f"packagingtype_name should be one of {ALLOWED_PACKAGING_TYPES}"}
@@ -99,7 +104,7 @@ async def create_packagingtype(data: schemas.CreatePackagingType, response: Resp
 
 
 @base_router.put("/packagingtype_{packagingtype_id}", status_code=status.HTTP_202_ACCEPTED)
-async def update_packagingtype(packagingtype_id: int, data: schemas.UpdatePackagingType, response: Response):
+async def update_packagingtype(packagingtype_id: int, data: schemas.UpdatePackagingType, response: Response = None):
     try:
         result = await update_packagingtype_db(
             name=data.name,
@@ -107,23 +112,26 @@ async def update_packagingtype(packagingtype_id: int, data: schemas.UpdatePackag
             side_svg=data.side_svg,
             top_svg=data.top_svg,
             packagingtype_id=packagingtype_id,
-            object=data.object
+            object=data.object,
+            created=data.created
         )
         return {"status": "ok", "packagingtype": result}
     except:
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        if response:
+            response.status_code = status.HTTP_400_BAD_REQUEST
         return {"status": "fail", "error": "no such packagingtype_id"}
 
 
 @base_router.delete("/packagingtype_{packagingtype_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_packagingtype(packagingtype_id: int, response: Response):
+async def delete_packagingtype(packagingtype_id: int, response: Response = None):
     try:
         result = await delete_packagingtype_db(
             packagingtype_id=packagingtype_id
         )
         return {"status": "ok", "packagingtype": result}
     except:
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        if response:
+            response.status_code = status.HTTP_400_BAD_REQUEST
         return {"status": "fail", "error": "no such packagingtype_id"}
 
 
@@ -134,7 +142,7 @@ async def get_packagingtypes():
 
 
 @base_router.post("/productcategory", status_code=status.HTTP_201_CREATED)
-async def create_productcategory(data: schemas.ProductCategory, response: Response):
+async def create_productcategory(data: schemas.ProductCategory):
     result = await create_productcategory_db(
         name=data.name
     )
@@ -143,14 +151,15 @@ async def create_productcategory(data: schemas.ProductCategory, response: Respon
 
 
 @base_router.put("/productcategory_{productcategory_id}", status_code=status.HTTP_202_ACCEPTED)
-async def update_productcategory(productcategory_id: int, data: schemas.ProductCategory, response: Response):
+async def update_productcategory(productcategory_id: int, data: schemas.UpdateProductCategory, response: Response = None):
     try:
         result = await update_productcategory_db(
-            name=data.name, productcategory_id=productcategory_id
+            name=data.name, productcategory_id=productcategory_id, created=data.created
         )
         return {"status": "ok", "productcategory": result}
     except:
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        if response:
+            response.status_code = status.HTTP_400_BAD_REQUEST
         return {"status": "fail", "error": "no such productcategory_id"}
 
 
@@ -159,15 +168,17 @@ async def get_product_categories():
     result = await get_product_categories_db()
     return {"status": "ok", "product_categories": result}
 
+
 @base_router.delete("/productcategory_{productcategory_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_productcategory(productcategory_id: int, response: Response):
+async def delete_productcategory(productcategory_id: int, response: Response = None):
     try:
         result = await delete_productcategory_db(
             productcategory_id=productcategory_id
         )
         return {"status": "ok", "productcategory": result}
     except:
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        if response:
+            response.status_code = status.HTTP_400_BAD_REQUEST
         return {"status": "fail", "error": "no such productcategory_id"}
 
 
@@ -178,7 +189,7 @@ async def get_productcategories():
 
 
 @base_router.post("/product", status_code=status.HTTP_201_CREATED)
-async def create_product(data: schemas.CreateProduct, response: Response):
+async def create_product(data: schemas.CreateProduct):
     result = await create_product_db(
         data=dict(data.dict())
     )
@@ -187,19 +198,20 @@ async def create_product(data: schemas.CreateProduct, response: Response):
 
 
 @base_router.delete("/product_{product_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_product(product_id: int, response: Response):
+async def delete_product(product_id: int, response: Response = None):
     try:
         result = await delete_product_db(
             product_id=product_id
         )
         return {"status": "ok", "product": result}
     except:
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        if response:
+            response.status_code = status.HTTP_400_BAD_REQUEST
         return {"status": "fail", "error": "no such product_id"}
 
 
 @base_router.put("/product_{product_id}", status_code=status.HTTP_202_ACCEPTED)
-async def update_product(product_id: int, data: schemas.UpdateProduct, response: Response):
+async def update_product(product_id: int, data: schemas.UpdateProduct, response: Response = None):
     try:
         result = await update_product_db(
             product_id=product_id,
@@ -213,11 +225,13 @@ async def update_product(product_id: int, data: schemas.UpdateProduct, response:
             volume=data.volume,
             category_id = data.category_id,
             facing_preview=data.facing_preview,
-            packaging_type_id=data.packaging_type_id
+            packaging_type_id=data.packaging_type_id,
+            created=data.created
         )
         return {"status": "ok", "product": result}
     except:
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        if response:
+            response.status_code = status.HTTP_400_BAD_REQUEST
         return {"status": "fail", "error": "no such product_id"}
 
 

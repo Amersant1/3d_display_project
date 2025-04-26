@@ -35,6 +35,7 @@ try:
     allow_credentials=True,
     allow_methods=["*"],  # Разрешить все методы (GET, POST, PUT, DELETE и т.д.)
     allow_headers=["*"],  # Разрешить все заголовки
+    
 )
     # Base.metadata.create_all(engine)
 except Exception as e:

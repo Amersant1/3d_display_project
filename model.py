@@ -26,6 +26,9 @@ class Client(Base):
 
     active = Column(Boolean, default=True)
 
+    created = Column(DateTime, default=datetime.now)
+    last_updated = Column(DateTime, default=datetime.now)
+
 
 class ProductCategory(Base):
     """
@@ -40,6 +43,9 @@ class ProductCategory(Base):
     name = Column(String(64))
 
     active = Column(Boolean, default=True)
+
+    created = Column(DateTime, default=datetime.now)
+    last_updated = Column(DateTime, default=datetime.now)
 
 
 class PackagingType(Base):
@@ -69,6 +75,9 @@ class PackagingType(Base):
 
     object = Column(String(64))
 
+    created = Column(DateTime, default=datetime.now)
+    last_updated = Column(DateTime, default=datetime.now)
+
 
 class PrepType(Base):
     """
@@ -95,6 +104,9 @@ class PrepType(Base):
 
     active = Column(Boolean, default=True)
 
+    created = Column(DateTime, default=datetime.now)
+    last_updated = Column(DateTime, default=datetime.now)
+
 
 class Employee(Base):
     """
@@ -109,6 +121,9 @@ class Employee(Base):
     full_name = Column(String(128))
 
     active = Column(Boolean, default=True)
+
+    created = Column(DateTime, default=datetime.now)
+    last_updated = Column(DateTime, default=datetime.now)
 
 
 class Product(Base):
@@ -157,6 +172,8 @@ class Product(Base):
 
     active = Column(Boolean, default=True)
 
+    created = Column(DateTime, default=datetime.now)
+    last_updated = Column(DateTime, default=datetime.now)
 
 class Project(Base):
     __tablename__="projects"
@@ -166,9 +183,11 @@ class Project(Base):
     client = relationship('Client')
     employee_id = Column(Integer, ForeignKey('employees.id'))
     employee = relationship('Employee')
-
+    number = Column(Integer,default = 0)
     active = Column(Boolean, default=True)
 
+    created = Column(DateTime, default=datetime.now)
+    last_updated = Column(DateTime, default=datetime.now)
 
 class Poultice(Base):
     """Припак
@@ -193,7 +212,7 @@ class Poultice(Base):
     created_at = Column(DateTime, default=datetime.now)
 
     type = relationship('PrepType', lazy="selectin")
-    shelves = relationship('Shelf',back_populates="poulticle")
+    shelves = relationship('Shelf', back_populates="poulticle")
 
     active = Column(Boolean, default=True)
 
@@ -210,6 +229,12 @@ class Poultice(Base):
     fronton_height_mm = Column(Float)
     topper_height_mm = Column(Float)
 
+    created = Column(DateTime, default=datetime.now)
+    last_updated = Column(DateTime, default=datetime.now)
+
+    original_id = Column(Integer, default=0)
+    session_name = Column(String(32), default="")
+
 
 class Shelf(Base):
     """
@@ -218,6 +243,7 @@ class Shelf(Base):
     Поля:
     - id: Числовой (Зн.), код полки (Primary Key)
     products = 
+
     """
     __tablename__="shelves"
     id = Column(Integer, primary_key=True)
@@ -237,6 +263,11 @@ class Shelf(Base):
 
     isRows = Column(Boolean, default=True)
 
+    created = Column(DateTime, default=datetime.now)
+    last_updated = Column(DateTime, default=datetime.now)
+
+    original_id = Column(Integer, default=0)
+    session_name = Column(String(32), default="")
 
 # class ProductOnShelf(Base):
 #     __tablename__ = "products_on_shelves"

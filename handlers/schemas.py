@@ -1,4 +1,5 @@
 from enum import Enum
+from datetime import datetime
 
 from pydantic import BaseModel, Json
 from pydantic import field_validator
@@ -6,12 +7,28 @@ from pydantic.dataclasses import dataclass
 from typing import Optional, List, Any,Dict,Union
 
 
+class RunSequence(BaseModel):
+    l: List[str]
+
+
 class CreateEmployee(BaseModel):
     full_name: str
 
 
+class UpdateEmployee(BaseModel):
+    full_name: str
+
+    created: Optional[datetime] = None
+
+
+class CreateClient(BaseModel):
+    name: str
+
+
 class UpdateClient(BaseModel):
     name: str
+
+    created: Optional[datetime] = None
 
 
 class Copy(BaseModel):
@@ -22,7 +39,7 @@ class AddProject(BaseModel):
     name: str
     client_id: Optional[int] = None
     client_name: Optional[str] = None
-
+    number :Optional[int] = None
     # TODO: Validation if client id or name is given not by if in view controller
     """
     @field_validator('client_name')
@@ -37,6 +54,8 @@ class AddProject(BaseModel):
 class UpdateProject(BaseModel):
     name: Optional[str] = None
     client_id: Optional[int] = None
+    number : Optional[int] = None
+    created: Optional[datetime] = None
 
 
 class Prep_Type(Enum):
@@ -64,7 +83,7 @@ class CreatePoultice(BaseModel):
     image: str
     number: int
 
-    json_sizes_box: Optional[Dict[str, Any]] = None
+    json_sizes_box: Optional[Dict[str, Any]] = {"width": 100, "height": 100, "depth": 100}
 
     number_of_shelves: Optional[int] = 4
     width_mm: Optional[float] = 380
@@ -105,6 +124,8 @@ class UpdatePoultice(BaseModel):
     fronton_height_mm: Optional[float] = None
     topper_height_mm: Optional[float] = None
 
+    created: Optional[datetime] = None
+
 
 class CreateShelf(BaseModel):
     width: int
@@ -133,18 +154,27 @@ class UpdateShelf(BaseModel):
 
     isRows: bool = False
 
+    created: Optional[datetime] = None
+
+
 class CreatePrepType(BaseModel):
     name: str
+
+
+class UpdatePrepType(BaseModel):
+    name: str
+
+    created: Optional[datetime] = None
 
 
 class CreatePackagingType(BaseModel):
     name: str
 
     front_svg: str
-    side_svg: str
+    side_svg: Optional[str] = None
     top_svg: str
 
-    object: str
+    object: Optional[str] = None
 
 
 class UpdatePackagingType(BaseModel):
@@ -156,10 +186,17 @@ class UpdatePackagingType(BaseModel):
 
     object: Optional[str] = None
 
+    created: Optional[datetime] = None
 
 
 class ProductCategory(BaseModel):
     name: str
+
+
+class UpdateProductCategory(BaseModel):
+    name: str
+
+    created: Optional[datetime] = None
 
 
 class CreateProduct(BaseModel):
@@ -201,6 +238,8 @@ class UpdateProduct(BaseModel):
     packaging_obj: str
     packaging_type_id: int=None
     facing_preview: Optional[str] = None
+
+    created: Optional[datetime] = None
 
 
 class CreateProductOnShelf(BaseModel):
