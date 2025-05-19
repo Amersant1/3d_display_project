@@ -23,6 +23,10 @@ async def _clone_model(model, session: AsyncSession = None, **kwargs):
     data.update(kwargs)
 
     clone = model.__class__(**data)
+    if hasattr(clone,'created_at'):
+        clone.created_at = datetime.now()
+    if hasattr(clone,'created'):
+        clone.created = datetime.now()
     session.add(clone)
     await session.commit()
     return clone
@@ -40,6 +44,7 @@ async def clone_client_db(instance_id: int, session: AsyncSession = None):
     x = await session.get(Client, instance_id)
 
     y = await _clone_model(model=x)
+    # y.created_at = datetime.now()
 
     res = [{"type": "client", "id": y.id, "old_id": x.id}]
     for el in (await session.execute(select(Project).where(Project.client_id == x.id))).scalars().all():

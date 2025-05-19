@@ -28,7 +28,7 @@ async def update_employee_db(created: datetime = None, full_name: str = None, em
     return x
 
 
-async def create_project_db(name, client_id=None, client_name=None, session = None):
+async def create_project_db(name, client_id=None, client_name=None, session = None,number=None):
     if session is None:
         # Create a new session if one is not provided
         async for session in make_session():
@@ -44,7 +44,7 @@ async def create_project_db(name, client_id=None, client_name=None, session = No
         await session.commit()
         await session.refresh(client)
         client_id = client.id
-    project = Project(name=name, client_id=client_id)
+    project = Project(name=name, client_id=client_id,number=number)
     session.add(project)
     await session.commit()
     await session.refresh(project)
@@ -78,7 +78,7 @@ async def get_project_db(project_id: int, session: AsyncSession=None):
     return result
 
 
-async def update_project_db(project_id: int, name: str = None, client_id: int = None,number:int = None, session: AsyncSession = None, created: datetime = None):
+async def update_project_db(project_id: int, name: str = None, client_id: int = None,number:str = None, session: AsyncSession = None, created: datetime = None):
     """ Обновляет проект по id в бд """
 
     if session is None:

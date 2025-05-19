@@ -4,7 +4,7 @@ from controller import WEBHOOK_PORT
 import uvicorn
 from datetime import datetime
 
-from handlers import project_router, shelf_router, product_router, convert_router
+from handlers import project_router, shelf_router, product_router, convert_router,pdf_make_router
 
 
 
@@ -26,7 +26,7 @@ async def startup():
     print("startup ended")
 
 
-routers = [convert_router, shelf_router, project_router, product_router]
+routers = [convert_router, shelf_router, project_router, product_router,pdf_make_router]
 
 for router in routers:
     app.include_router(router)

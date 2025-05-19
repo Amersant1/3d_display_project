@@ -22,7 +22,7 @@ class Client(Base):
     """
     __tablename__ = 'clients'
     id = Column(Integer, primary_key=True)
-    name = Column(String(64))
+    name = Column(String(1024))
 
     active = Column(Boolean, default=True)
 
@@ -40,7 +40,7 @@ class ProductCategory(Base):
     """
     __tablename__ = 'product_categories'
     id = Column(Integer, primary_key=True)
-    name = Column(String(64))
+    name = Column(String(1024))
 
     active = Column(Boolean, default=True)
 
@@ -65,15 +65,15 @@ class PackagingType(Base):
     """
     __tablename__ = 'packaging_types'
     id = Column(Integer, primary_key=True)
-    name = Column(String(64))
+    name = Column(String(1024))
 
-    front_svg = Column(String(64))
-    side_svg = Column(String(64))
-    top_svg = Column(String(64))
+    front_svg = Column(String(1024))
+    side_svg = Column(String(1024))
+    top_svg = Column(String(1024))
 
     active = Column(Boolean, default=True)
 
-    object = Column(String(64))
+    object = Column(String(1024))
 
     created = Column(DateTime, default=datetime.now)
     last_updated = Column(DateTime, default=datetime.now)
@@ -100,7 +100,7 @@ class PrepType(Base):
     """
     __tablename__ = 'prep_types'
     id = Column(Integer, primary_key=True)
-    name = Column(String(64))
+    name = Column(String(1024))
 
     active = Column(Boolean, default=True)
 
@@ -118,7 +118,7 @@ class Employee(Base):
     """
     __tablename__ = 'employees'
     id = Column(Integer, primary_key=True)
-    full_name = Column(String(128))
+    full_name = Column(String(1024))
 
     active = Column(Boolean, default=True)
 
@@ -147,8 +147,8 @@ class Product(Base):
     """
     __tablename__ = 'products'
     id = Column(Integer, primary_key=True)
-    name = Column(String(64))
-    barcode = Column(String(64))
+    name = Column(String(1024))
+    barcode = Column(String(1024))
     client_id = Column(Integer, ForeignKey('clients.id'))
     category_id = Column(Integer, ForeignKey('product_categories.id'))
     packaging_type_id = Column(Integer, ForeignKey('packaging_types.id'))
@@ -158,13 +158,13 @@ class Product(Base):
     size_3 = Column(Float)
     weight = Column(Float)
     volume = Column(Float)
-    facing_preview = Column(String(64))  # Assuming this is a filepath to the image
+    facing_preview = Column(String(1024))  # Assuming this is a filepath to the image
 
     packaging_x = Column(Float)
     packaging_y = Column(Float)
     packaging_z = Column(Float)
 
-    packaging_obj = Column(String(64))
+    packaging_obj = Column(String(1024))
 
     client = relationship('Client')
     category = relationship('ProductCategory', lazy="selectin")
@@ -178,12 +178,12 @@ class Product(Base):
 class Project(Base):
     __tablename__="projects"
     id = Column(Integer, primary_key=True)
-    name = Column(String(128))
+    name = Column(String(1024))
     client_id = Column(Integer, ForeignKey('clients.id'))
     client = relationship('Client')
     employee_id = Column(Integer, ForeignKey('employees.id'))
     employee = relationship('Employee')
-    number = Column(Integer,default = 0)
+    number = Column(String(1024),default = '0')
     active = Column(Boolean, default=True)
 
     created = Column(DateTime, default=datetime.now)
@@ -197,12 +197,12 @@ class Poultice(Base):
     id = Column(Integer, primary_key=True)
     project_id = Column(Integer, ForeignKey('projects.id'))
     project = relationship('Project')
-    file = Column(String(1000))
+    file = Column(String(1024))
     type_id = Column(Integer, ForeignKey('prep_types.id'))  # Foreign key to prep_types
 
-    name = Column(String(128))
-    image = Column(String(256))
-    number = Column(Integer)
+    name = Column(String(1024))
+    image = Column(String(1024))
+    number = Column(String(1024))
 
     size_x = Column(Float)
     size_y = Column(Float)
@@ -233,7 +233,7 @@ class Poultice(Base):
     last_updated = Column(DateTime, default=datetime.now)
 
     original_id = Column(Integer, default=0)
-    session_name = Column(String(32), default="")
+    session_name = Column(String(1024), default="")
 
 
 class Shelf(Base):
@@ -267,7 +267,7 @@ class Shelf(Base):
     last_updated = Column(DateTime, default=datetime.now)
 
     original_id = Column(Integer, default=0)
-    session_name = Column(String(32), default="")
+    session_name = Column(String(1024), default="")
 
 # class ProductOnShelf(Base):
 #     __tablename__ = "products_on_shelves"

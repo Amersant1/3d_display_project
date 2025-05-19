@@ -39,7 +39,7 @@ class AddProject(BaseModel):
     name: str
     client_id: Optional[int] = None
     client_name: Optional[str] = None
-    number :Optional[int] = None
+    number :Optional[str] = None
     # TODO: Validation if client id or name is given not by if in view controller
     """
     @field_validator('client_name')
@@ -54,7 +54,7 @@ class AddProject(BaseModel):
 class UpdateProject(BaseModel):
     name: Optional[str] = None
     client_id: Optional[int] = None
-    number : Optional[int] = None
+    number : Optional[str] = None
     created: Optional[datetime] = None
 
 
@@ -81,7 +81,7 @@ class CreatePoultice(BaseModel):
 
     name: str
     image: str
-    number: int
+    number: str
 
     json_sizes_box: Optional[Dict[str, Any]] = {"width": 100, "height": 100, "depth": 100}
 
@@ -107,7 +107,7 @@ class UpdatePoultice(BaseModel):
 
     name: Optional[str] = None
     image: Optional[str] = None
-    number: Optional[int] = None
+    number: Optional[str] = None
 
     is_designed: Optional[bool] = None
 
@@ -179,13 +179,10 @@ class CreatePackagingType(BaseModel):
 
 class UpdatePackagingType(BaseModel):
     name: Optional[str] = None
-
     front_svg: Optional[str] = None
     side_svg: Optional[str] = None
     top_svg: Optional[str] = None
-
     object: Optional[str] = None
-
     created: Optional[datetime] = None
 
 

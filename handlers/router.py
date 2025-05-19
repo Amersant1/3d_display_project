@@ -17,3 +17,8 @@ convert_router = APIRouter(
     prefix="/file",
     tags=["Converting operations"]
 )
+
+pdf_make_router = APIRouter(
+    prefix="/pdf_maker",
+    tags=["PdfMaker"]
+)
